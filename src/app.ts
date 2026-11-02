@@ -3,9 +3,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import hpp from 'hpp';
 import mongoSanitize from 'express-mongo-sanitize';
-import swaggerUi from 'swagger-ui-express';
 import path from 'path';
-
 import { corsOptions } from '#config/cors.config.js';
 import { requestIdMiddleware } from '#middlewares/request-id.middleware.js';
 import { requestLoggerMiddleware } from '#middlewares/request-logger.middleware.js';
@@ -14,7 +12,7 @@ import { errorHandler } from '#middlewares/error.middleware.js';
 import { NotFoundError } from '#errors/index.js';
 import apiRouter from '#src/routes/index.js';
 import healthRoutes from '#modules/health/health.route.js';
-import { swaggerSpec } from '#src/docs/swagger.js';
+import { serveOpenApiYaml, serveStoplightUi } from '#src/docs/stoplight.js';
 
 export const createApp = (): Application => {
   const app = express();
@@ -28,9 +26,12 @@ export const createApp = (): Application => {
       contentSecurityPolicy: {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "'unsafe-inline'"],
-          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'", "'unsafe-inline'", 'https://unpkg.com', 'blob:'],
+          styleSrc: ["'self'", "'unsafe-inline'", 'https://unpkg.com', 'https://fonts.googleapis.com'],
+          fontSrc: ["'self'", 'https:', 'data:', 'https://fonts.gstatic.com'],
           imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+          connectSrc: ["'self'", 'https:', 'data:', 'http://localhost:*'],
+          workerSrc: ["'self'", 'blob:'],
         },
       },
       crossOriginEmbedderPolicy: false,
@@ -68,17 +69,9 @@ export const createApp = (): Application => {
   // 10. API Throttling / Rate Limiting
   app.use('/api', apiRateLimiter);
 
-  // 11. Interactive OpenAPI / Swagger UI
-  app.use(
-    '/api-docs',
-    swaggerUi.serve,
-    swaggerUi.setup(swaggerSpec, {
-      customSiteTitle: 'Enterprise E-Commerce API Documentation',
-      swaggerOptions: {
-        persistAuthorization: true,
-      },
-    })
-  );
+  // 11. Interactive API Documentation (Stoplight Elements)
+  app.get(['/openapi.yaml', '/api-docs/openapi.yaml'], serveOpenApiYaml);
+  app.get(['/api-docs', '/api-docs/*', '/docs'], serveStoplightUi);
 
   // 12. Root-Level Health Checks (Kubernetes & Load Balancers)
   app.use('/', healthRoutes);

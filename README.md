@@ -1,6 +1,6 @@
-# Enterprise E-Commerce Backend (3-Tier Layered Architecture)
+# Express TypeScript Starter (3-Tier Layered Architecture)
 
-A production-grade, high-scale RESTful API backend built with **Node.js, Express, TypeScript, MongoDB, and Redis**, implementing a strict **3-Tier Layered Architecture** (Controllers → Services → Repositories).
+A production-grade, extensible RESTful API starter built with **Node.js, Express, TypeScript, MongoDB, and Redis**, implementing a strict **3-Tier Layered Architecture** (Controllers → Services → Repositories).
 
 ---
 

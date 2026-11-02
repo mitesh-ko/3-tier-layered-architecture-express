@@ -64,6 +64,7 @@ Every engineering task must follow these five phases in sequence:
 ### Phase 3: Disciplined Implementation
 - **Strict Typing**: Zero `any`. Derive types with `z.infer<typeof Schema>`.
 - **Subpath Imports**: Use `#modules/*`, `#shared/*`, `#errors/*`, `#config/*`, `#types/*`.
+- **Intent-Driven Documentation**: Document intent, HTTP contracts, and non-obvious behavior. Never restate types already enforced by TypeScript (avoid boilerplate/empty `@param req` and `@param res` tags).
 - **Atomic & Clean Edits**: Make surgical, clean modifications. Do not delete existing comments, docstrings, or unrelated functionality.
 - **Defensive Invariants**: Validate preconditions and edge cases early (guard clauses).
 

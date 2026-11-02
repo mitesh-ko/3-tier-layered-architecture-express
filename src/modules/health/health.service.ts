@@ -1,7 +1,7 @@
 import { Database } from '#config/database.config.js';
 import { RedisManager } from '#config/redis.config.js';
 import { env } from '#config/env.config.js';
-
+import { DateUtil } from '#shared/utils/date.util.js';
 
 export interface HealthStatus {
   status: 'healthy' | 'degraded' | 'unhealthy';
@@ -36,7 +36,7 @@ export class HealthService {
     return {
       status: overallStatus,
       uptime: Math.floor(process.uptime()),
-      timestamp: new Date().toISOString(),
+      timestamp: DateUtil.toUTCISOString(),
       version: '1.0.0',
       services: {
         database: isDbHealthy ? 'up' : 'down',

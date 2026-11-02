@@ -1,11 +1,9 @@
 import { Router } from 'express';
 import { userController } from './user.controller.js';
 import { authenticate } from '#middlewares/auth.middleware.js';
-import { authorize } from '#middlewares/rbac.middleware.js';
 import { validate } from '#middlewares/validate.middleware.js';
 import { asyncHandler } from '#shared/utils/async-handler.js';
 import { UserIdParamSchema, ListUsersQuerySchema, UpdateUserSchema } from './user.schema.js';
-
 
 const router = Router();
 
@@ -14,11 +12,10 @@ router.use(authenticate);
 
 /**
  * @route GET /api/v1/users
- * @desc Get paginated list of users (Admin only)
+ * @desc Get paginated list of users
  */
 router.get(
   '/',
-  authorize('admin'),
   validate({ query: ListUsersQuerySchema }),
   asyncHandler(userController.listAll)
 );
@@ -35,7 +32,7 @@ router.get(
 
 /**
  * @route PUT /api/v1/users/:id
- * @desc Update user profile (Self or Admin)
+ * @desc Update user profile (Self)
  */
 router.put(
   '/:id',
@@ -45,7 +42,7 @@ router.put(
 
 /**
  * @route DELETE /api/v1/users/:id
- * @desc Delete user (Self or Admin)
+ * @desc Delete user (Self)
  */
 router.delete(
   '/:id',

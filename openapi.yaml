@@ -1,15 +1,13 @@
 openapi: 3.0.0
 info:
-  title: Express API Starter Kit
-  version: 1.1.0
-  description: API documentation for Express API starter kit
+  title: REST API
+  version: 1.0.0
+  description: Production-ready, extensible 3-Tier Express REST API starter with TypeScript, MongoDB, and Redis
 servers:
-  - url: http://localhost:4000/v1
-    description: HTTP API Starter Kit
-  - url: https://sandbox.api.yourdomain.com/v1
-    description: Sandbox environment
-  - url: https://api.yourdomain.com/v1
-    description: Production environment
+  - url: /api/v1
+    description: Current Server (Same-Origin)
+  - url: http://localhost:4000/api/v1
+    description: Local Development Server
 components:
   securitySchemes:
     bearerAuth:
@@ -17,19 +15,20 @@ components:
       scheme: bearer
       bearerFormat: JWT
 security:
-  bearerAuth: []
+  - bearerAuth: []
 tags:
   - name: Auth
     description: API endpoints for managing Authentication
   - name: Users
     description: API endpoints for managing users
 paths:
-  /register:
+  /auth/register:
     post:
       summary: Register a new user
       description: Create a new user with email and password.
       tags:
         - Auth
+      security: []
       requestBody:
         required: true
         content:
@@ -41,18 +40,38 @@ paths:
                 - password
                 - confirmPassword
               properties:
+                firstName:
+                  type: string
+                  example: John
+                lastName:
+                  type: string
+                  example: Doe
+                name:
+                  type: string
+                  example: John Doe
+                  description: Optional alias; will be split into firstName and lastName if provided
                 email:
                   type: string
                   format: email
-                  example: john@example.com
+                  example: testuser1@example.com
+                phone:
+                  type: string
+                  example: '+15551234567'
                 password:
                   type: string
                   format: password
-                  example: Pas$word123
+                  example: Password123!
                 confirmPassword:
                   type: string
                   format: password
-                  example: Pas$word123
+                  example: Password123!
+            example:
+              firstName: John
+              lastName: Doe
+              email: testuser1@example.com
+              phone: '+15551234567'
+              password: Password123!
+              confirmPassword: Password123!
       responses:
         '201':
           description: User registered successfully
@@ -70,12 +89,13 @@ paths:
                   token:
                     type: string
                     example: eyJhbGciOiJIUzI1NiIsInR...
-  /login:
+  /auth/login:
     post:
       summary: Login user
       description: Authenticate user using email and password.
       tags:
         - Auth
+      security: []
       requestBody:
         required: true
         content:
@@ -93,7 +113,10 @@ paths:
                 password:
                   type: string
                   format: password
-                  example: Pas$word123
+                  example: Password123!
+            example:
+              email: testuser1@example.com
+              password: Password123!
       responses:
         '200':
           description: User authenticated successfully
@@ -122,6 +145,159 @@ paths:
                         example: active
         '401':
           description: Invalid email or password
+  /auth/verify-email:
+    post:
+      summary: Verify email address
+      description: Verify email using the token received in email link
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+              properties:
+                token:
+                  type: string
+                  example: 3b1a8d0f19c9e829302194819a12bcde3b1a8d0f19c9e829302194819a12bcde
+            example:
+              token: 3b1a8d0f19c9e829302194819a12bcde3b1a8d0f19c9e829302194819a12bcde
+      responses:
+        '200':
+          description: Email verified successfully
+        '400':
+          description: Invalid or expired verification token
+  /auth/resend-verification:
+    post:
+      summary: Resend email verification link
+      description: Resend email verification link with anti-enumeration protection
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+            example:
+              email: testuser1@example.com
+      responses:
+        '200':
+          description: Generic confirmation message
+  /auth/forgot-password:
+    post:
+      summary: Request password reset
+      description: Send password reset link to user email with anti-enumeration protection
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: john@example.com
+            example:
+              email: testuser1@example.com
+      responses:
+        '200':
+          description: Password reset link dispatched confirmation
+  /auth/reset-password:
+    post:
+      summary: Reset password
+      description: Reset user password using token from email link
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - password
+                - confirmPassword
+              properties:
+                token:
+                  type: string
+                  example: 3b1a8d0f19c9e829302194819a12bcde3b1a8d0f19c9e829302194819a12bcde
+                password:
+                  type: string
+                  format: password
+                  example: NewSecurePass123!
+                confirmPassword:
+                  type: string
+                  format: password
+                  example: NewSecurePass123!
+            example:
+              token: 3b1a8d0f19c9e829302194819a12bcde3b1a8d0f19c9e829302194819a12bcde
+              password: NewSecurePass123!
+              confirmPassword: NewSecurePass123!
+      responses:
+        '200':
+          description: Password reset successfully
+        '400':
+          description: Invalid or expired reset token
+  /auth/refresh:
+    post:
+      summary: Refresh access token
+      description: Refresh expired access token using valid refresh token
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - refreshToken
+              properties:
+                refreshToken:
+                  type: string
+                  example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+            example:
+              refreshToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummyRefreshTokenExample
+      responses:
+        '200':
+          description: Tokens refreshed successfully
+        '401':
+          description: Invalid or expired refresh token
+  /auth/me:
+    get:
+      summary: Get current authenticated user
+      description: Retrieve profile of currently authenticated user via Bearer token
+      tags:
+        - Auth
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Current user retrieved
+        '401':
+          description: Missing or invalid token
   /users:
     get:
       summary: Get all users

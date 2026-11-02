@@ -7,7 +7,6 @@ describe('TokenService (Unit Tests)', () => {
   const mockPayload = {
     userId: '64e72f3bb6dc7b001f2a8c12',
     email: 'admin@example.com',
-    role: 'admin' as const,
   };
 
   it('should generate valid access and refresh token pair', () => {
@@ -25,7 +24,6 @@ describe('TokenService (Unit Tests)', () => {
 
     expect(decoded.userId).toBe(mockPayload.userId);
     expect(decoded.email).toBe(mockPayload.email);
-    expect(decoded.role).toBe('admin');
   });
 
   it('should verify and decode valid refresh token', () => {

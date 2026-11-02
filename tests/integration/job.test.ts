@@ -10,7 +10,6 @@ describe('Job Status API Integration Tests', () => {
   const userTokens = TokenService.generateTokens({
     userId: '64e72f3bb6dc7b001f2a8c12',
     email: 'user@example.com',
-    role: 'user',
   });
 
   it('GET /api/v1/jobs/:id should return 401 Unauthorized without token', async () => {

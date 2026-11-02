@@ -11,10 +11,23 @@ const parseAllowedOrigins = (originsInput: string): string[] => {
     // If not JSON array, parse comma-separated
     return originsInput.split(',').map((item) => item.trim());
   }
-  return ['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:5173'];
+  return [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://localhost:5173',
+    `http://localhost:${env.PORT}`,
+    `http://127.0.0.1:${env.PORT}`,
+  ];
 };
 
 const allowedOrigins = parseAllowedOrigins(env.CORS_ORIGIN);
+// Ensure backend self-origin is always allowed for interactive API documentation
+if (!allowedOrigins.includes(`http://localhost:${env.PORT}`)) {
+  allowedOrigins.push(`http://localhost:${env.PORT}`);
+}
+if (!allowedOrigins.includes(`http://127.0.0.1:${env.PORT}`)) {
+  allowedOrigins.push(`http://127.0.0.1:${env.PORT}`);
+}
 
 export const corsOptions: CorsOptions = {
   origin: (origin, callback) => {

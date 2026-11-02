@@ -45,9 +45,11 @@ src/modules/<feature-name>/
 - Calls Service methods asynchronously.
 - Returns standardized responses via `ApiResponse.success(res, message, data, statusCode, meta)`.
 - Never catches errors manually unless transforming them; let `asyncHandler` pass errors to global error middleware.
+- **Intent-Driven Documentation**: Document intent, HTTP method/route contract, and business effect. Never restate static types (avoid boilerplate `@param req / @param res`).
 
 ### 3. Service Layer (`*.service.ts`)
 - Pure business logic. Absolutely zero Express imports (`Request`, `Response`, `NextFunction`).
+- Document complex business invariants, cryptographic algorithms, or cache-invalidation rules.
 - Throws typed `AppError` subclasses:
   - `NotFoundError` (resource does not exist)
   - `ForbiddenError` (user lacks ownership or permission)

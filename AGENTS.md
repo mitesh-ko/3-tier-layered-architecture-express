@@ -33,6 +33,8 @@ As an AI Senior/Staff Software Engineer on this project, you operate with high r
      1. `npm run typecheck` (TypeScript strict mode)
      2. `npm run lint` (ESLint)
      3. `npm run test` (Vitest test suite)
+8. **Intent-Driven Documentation**:
+   - Document intent, HTTP contracts, and non-obvious behavior. Never restate static types already guaranteed by TypeScript (avoid boilerplate or empty `@param req / @param res` tags). Keep comments concise, accurate, and high-value.
 
 ---
 

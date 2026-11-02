@@ -1,8 +1,13 @@
 import { JobRegistry } from './job-registry.js';
-import { WelcomeEmailHandler, PasswordResetEmailHandler } from './handlers/email.handler.js';
+import {
+  WelcomeEmailHandler,
+  EmailVerificationHandler,
+  PasswordResetEmailHandler,
+} from './handlers/email.handler.js';
 
 // Auto-register built-in core handlers
 JobRegistry.register(new WelcomeEmailHandler());
+JobRegistry.register(new EmailVerificationHandler());
 JobRegistry.register(new PasswordResetEmailHandler());
 
 export * from './job.types.js';

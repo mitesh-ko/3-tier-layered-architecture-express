@@ -33,6 +33,8 @@ Run through this checklist before presenting code or declaring any task complete
 ## 5. Testing & Code Quality
 - [ ] Are new or modified services covered by unit tests?
 - [ ] Are HTTP routes covered by integration tests using Supertest?
+- [ ] Do comments document intent and non-obvious behavior rather than restating types (no empty `@param req / @param res`)?
 - [ ] Did `npm run typecheck` pass with 0 errors?
 - [ ] Did `npm run lint` pass with 0 errors?
 - [ ] Did `npm run test` pass with 100% passing tests?
+

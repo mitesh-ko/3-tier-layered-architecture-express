@@ -19,8 +19,8 @@ services:
       - REDIS_ENABLED=true
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - JWT_ACCESS_SECRET=enterprise_production_access_secret_key_32bytes_long
-      - JWT_REFRESH_SECRET=enterprise_production_refresh_secret_key_32bytes_long
+      - JWT_ACCESS_SECRET=app_production_access_secret_key_32bytes_long
+      - JWT_REFRESH_SECRET=app_production_refresh_secret_key_32bytes_long
       - CORS_ORIGIN=["http://localhost:3000","http://localhost:5173"]
       - LOG_LEVEL=info
     depends_on:

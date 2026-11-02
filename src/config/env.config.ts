@@ -14,6 +14,7 @@ const envSchema = z.object({
   HOST: z.string().default('0.0.0.0'),
   APP_NAME: z.string().default('ad-e-com-backend'),
   API_PREFIX: z.string().default('/api/v1'),
+  CLIENT_URL: z.string().default('http://localhost:3000'),
 
   // CORS - can be JSON array or comma separated
   CORS_ORIGIN: z.string().default('["http://localhost:3000","http://127.0.0.1:3000","http://localhost:5173"]'),

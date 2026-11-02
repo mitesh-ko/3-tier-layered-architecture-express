@@ -3,6 +3,7 @@ import {
   differenceInCalendarDays,
   differenceInHours,
   differenceInMinutes,
+  differenceInSeconds,
   lastDayOfMonth,
   endOfMonth,
   startOfMonth,
@@ -14,23 +15,36 @@ import {
   addDays,
   addHours,
   addMinutes,
+  addSeconds,
   addMonths,
+  addYears,
   subDays,
   subHours,
+  subMinutes,
+  subSeconds,
   subMonths,
+  subYears,
   isPast,
   isFuture,
+  isBefore,
+  isAfter,
+  isEqual,
   isValid,
+  getUnixTime,
+  fromUnixTime,
+  getTime,
   format,
   formatDistanceToNow,
+  formatISO,
 } from 'date-fns';
 
-// Re-export core date-fns functions for convenient access across the app
+// Re-export core date-fns functions for convenient, standardized access across the app
 export {
   differenceInDays,
   differenceInCalendarDays,
   differenceInHours,
   differenceInMinutes,
+  differenceInSeconds,
   lastDayOfMonth,
   endOfMonth,
   startOfMonth,
@@ -42,20 +56,32 @@ export {
   addDays,
   addHours,
   addMinutes,
+  addSeconds,
   addMonths,
+  addYears,
   subDays,
   subHours,
+  subMinutes,
+  subSeconds,
   subMonths,
+  subYears,
   isPast,
   isFuture,
+  isBefore,
+  isAfter,
+  isEqual,
   isValid,
+  getUnixTime,
+  fromUnixTime,
+  getTime,
   format,
   formatDistanceToNow,
+  formatISO,
 };
 
 /**
- * Enterprise Date & Time Utility powered by date-fns
- * Standardizes UTC formatting, calendar calculations, and duration metrics.
+ * Date & Time Utility powered by date-fns
+ * Standardizes UTC formatting, calendar calculations, safe addition/subtraction, and comparisons.
  */
 export class DateUtil {
   /**
@@ -77,7 +103,56 @@ export class DateUtil {
   }
 
   /**
-   * Calculate how many days are left until a target date (e.g. subscription or trial expiry)
+   * Add hours to a date using date-fns
+   */
+  public static addHours(date: Date | number, hours: number): Date {
+    return addHours(date, hours);
+  }
+
+  /**
+   * Add days to a date using date-fns
+   */
+  public static addDays(date: Date | number, days: number): Date {
+    return addDays(date, days);
+  }
+
+  /**
+   * Add minutes to a date using date-fns
+   */
+  public static addMinutes(date: Date | number, minutes: number): Date {
+    return addMinutes(date, minutes);
+  }
+
+  /**
+   * Subtract hours from a date using date-fns
+   */
+  public static subHours(date: Date | number, hours: number): Date {
+    return subHours(date, hours);
+  }
+
+  /**
+   * Subtract days from a date using date-fns
+   */
+  public static subDays(date: Date | number, days: number): Date {
+    return subDays(date, days);
+  }
+
+  /**
+   * Check if date is before another date using date-fns
+   */
+  public static isBefore(date: Date | number, dateToCompare: Date | number): boolean {
+    return isBefore(date, dateToCompare);
+  }
+
+  /**
+   * Check if date is after another date using date-fns
+   */
+  public static isAfter(date: Date | number, dateToCompare: Date | number): boolean {
+    return isAfter(date, dateToCompare);
+  }
+
+  /**
+   * Calculate how many calendar days are left until a target date
    * Returns negative number if the date has already passed.
    */
   public static daysLeft(targetDate: Date | string | number, fromDate: Date = new Date()): number {
@@ -137,10 +212,25 @@ export class DateUtil {
   }
 
   /**
-   * Unix epoch seconds
+   * Convert date to Unix epoch seconds using date-fns getUnixTime
    */
   public static toUnixSeconds(date: Date | string | number = new Date()): number {
     const d = typeof date === 'object' && date instanceof Date ? date : new Date(date);
-    return Math.floor(d.getTime() / 1000);
+    return getUnixTime(d);
+  }
+
+  /**
+   * Convert Unix epoch seconds to Date instance using date-fns fromUnixTime
+   */
+  public static fromUnixSeconds(seconds: number): Date {
+    return fromUnixTime(seconds);
+  }
+
+  /**
+   * Milliseconds timestamp using date-fns getTime
+   */
+  public static toTimestamp(date: Date | string | number = new Date()): number {
+    const d = typeof date === 'object' && date instanceof Date ? date : new Date(date);
+    return getTime(d);
   }
 }

@@ -5,6 +5,11 @@ import {
   lastDayOfMonth,
   nextSunday,
   addDays,
+  addHours,
+  isBefore,
+  isAfter,
+  getUnixTime,
+  fromUnixTime,
 } from '#shared/utils/date.util.js';
 
 describe('DateUtil powered by date-fns (Unit Tests)', () => {
@@ -44,11 +49,38 @@ describe('DateUtil powered by date-fns (Unit Tests)', () => {
     expect(nextSunday(wednesday).getDay()).toBe(0);
   });
 
-  it('should support safe date addition with addDays', () => {
+  it('should support safe date addition with addDays and addHours', () => {
     const start = new Date('2026-01-01T00:00:00.000Z');
     const plus7 = addDays(start, 7);
-
     expect(plus7.getDate()).toBe(8);
+
+    const plus24Hours = addHours(start, 24);
+    expect(plus24Hours.getDate()).toBe(2);
+
+    const viaUtil = DateUtil.addHours(start, 48);
+    expect(viaUtil.getDate()).toBe(3);
+  });
+
+  it('should support subtraction and comparisons (isBefore / isAfter)', () => {
+    const earlier = new Date('2026-01-01T00:00:00.000Z');
+    const later = new Date('2026-01-02T00:00:00.000Z');
+
+    expect(isBefore(earlier, later)).toBe(true);
+    expect(DateUtil.isBefore(earlier, later)).toBe(true);
+    expect(isAfter(later, earlier)).toBe(true);
+    expect(DateUtil.isAfter(later, earlier)).toBe(true);
+
+    const minus1Day = DateUtil.subDays(later, 1);
+    expect(minus1Day.getDate()).toBe(1);
+  });
+
+  it('should convert to and from Unix epoch seconds using date-fns', () => {
+    const date = new Date('2026-10-25T12:00:00.000Z');
+    const seconds = DateUtil.toUnixSeconds(date);
+    expect(seconds).toBe(getUnixTime(date));
+
+    const restoredDate = DateUtil.fromUnixSeconds(seconds);
+    expect(restoredDate.toISOString()).toBe(fromUnixTime(seconds).toISOString());
   });
 
   it('should format ISO 8601 UTC strings with Z suffix', () => {

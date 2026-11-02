@@ -4,6 +4,7 @@ import { JobOptions, JobStatus } from './job.types.js';
 import { JobRegistry } from './job-registry.js';
 import { RedisManager } from '#config/redis.config.js';
 import { logger } from '#config/logger.config.js';
+import { DateUtil } from '#shared/utils/date.util.js';
 
 export class JobDispatcher {
   private static defaultQueueName = 'app-tasks';
@@ -75,7 +76,7 @@ export class JobDispatcher {
 
     // 2. Fallback Mode: In-Memory Asynchronous Execution (when Redis is disabled/offline)
     const jobId = options.jobId || randomUUID();
-    const now = Date.now();
+    const now = DateUtil.toTimestamp();
 
     const jobRecord: JobStatus = {
       id: jobId,
@@ -100,13 +101,13 @@ export class JobDispatcher {
         if (!handler) {
           jobRecord.state = 'failed';
           jobRecord.failedReason = `No handler registered for job: '${jobName}'`;
-          jobRecord.finishedAt = Date.now();
+          jobRecord.finishedAt = DateUtil.toTimestamp();
           logger.error({ jobId, jobName }, 'No handler registered for background job');
           return;
         }
 
         jobRecord.state = 'active';
-        jobRecord.processedAt = Date.now();
+        jobRecord.processedAt = DateUtil.toTimestamp();
         jobRecord.attemptsMade += 1;
 
         try {
@@ -122,11 +123,11 @@ export class JobDispatcher {
           jobRecord.state = 'completed';
           jobRecord.progress = 100;
           jobRecord.returnValue = result;
-          jobRecord.finishedAt = Date.now();
+          jobRecord.finishedAt = DateUtil.toTimestamp();
         } catch (err: any) {
           jobRecord.state = 'failed';
           jobRecord.failedReason = err?.message || 'Unknown job failure';
-          jobRecord.finishedAt = Date.now();
+          jobRecord.finishedAt = DateUtil.toTimestamp();
           logger.error({ jobId, jobName, err }, 'In-memory background job execution failed');
         }
       });

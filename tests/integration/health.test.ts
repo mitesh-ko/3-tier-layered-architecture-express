@@ -33,4 +33,30 @@ describe('Health & App Integration Tests', () => {
     expect(res.body.success).toBe(false);
     expect(res.body.errorCode).toBe('NOT_FOUND');
   });
+
+  it('GET /openapi.yaml should serve raw OpenAPI specification with 200', async () => {
+    const res = await request(app).get('/openapi.yaml');
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/yaml');
+    expect(res.text).toContain('openapi: 3.0.0');
+  });
+
+  it('GET /docs should serve Stoplight Elements HTML portal with 200', async () => {
+    const res = await request(app).get('/docs');
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/html');
+    expect(res.text).toContain('<elements-api');
+    expect(res.text).toContain('@stoplight/elements');
+  });
+
+  it('GET /api-docs should serve Stoplight Elements HTML portal with 200', async () => {
+    const res = await request(app).get('/api-docs');
+
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/html');
+    expect(res.text).toContain('<elements-api');
+    expect(res.text).toContain('@stoplight/elements');
+  });
 });

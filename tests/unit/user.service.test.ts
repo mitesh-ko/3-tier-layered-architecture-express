@@ -14,6 +14,7 @@ describe('UserService (Unit Tests)', () => {
       findPaginated: vi.fn(),
       updateById: vi.fn(),
       deleteById: vi.fn(),
+      softDeleteById: vi.fn(),
     };
     userService = new UserService(mockUserRepo as UserRepository);
   });
@@ -21,6 +22,16 @@ describe('UserService (Unit Tests)', () => {
   describe('getUserById', () => {
     it('should throw NotFoundError if user does not exist', async () => {
       vi.mocked(mockUserRepo.findById!).mockResolvedValue(null);
+
+      await expect(userService.getUserById('64e72f3bb6dc7b001f2a8c12')).rejects.toThrow(NotFoundError);
+    });
+
+    it('should throw NotFoundError if user is soft-deleted', async () => {
+      const mockUser = {
+        _id: '64e72f3bb6dc7b001f2a8c12',
+        deletedAt: new Date(),
+      };
+      vi.mocked(mockUserRepo.findById!).mockResolvedValue(mockUser as any);
 
       await expect(userService.getUserById('64e72f3bb6dc7b001f2a8c12')).rejects.toThrow(NotFoundError);
     });
@@ -39,48 +50,90 @@ describe('UserService (Unit Tests)', () => {
     });
   });
 
+  describe('listUsers', () => {
+    it('should filter by status and query search', async () => {
+      vi.mocked(mockUserRepo.findPaginated!).mockResolvedValue({
+        data: [],
+        meta: { page: 1, limit: 10, total: 0, totalPages: 1, hasNextPage: false, hasPrevPage: false },
+      });
+
+      const result = await userService.listUsers({
+        page: 1,
+        limit: 10,
+        status: 'active',
+        search: 'Demo',
+      });
+
+      expect(result.data).toBeDefined();
+      expect(mockUserRepo.findPaginated).toHaveBeenCalledWith(
+        expect.objectContaining({
+          deletedAt: null,
+          status: 'active',
+          $or: expect.any(Array),
+        }),
+        expect.anything()
+      );
+    });
+  });
+
   describe('updateUser', () => {
-    it('should forbid regular user from updating another user account', async () => {
-      const regularUserPayload = {
+    it('should forbid user from updating another user account', async () => {
+      const userPayload = {
         userId: '64e72f3bb6dc7b001f2a8c12',
         email: 'user1@example.com',
-        role: 'user' as const,
       };
 
       await expect(
-        userService.updateUser('64e72f3bb6dc7b001f2a8c99', { name: 'Hacked' }, regularUserPayload)
+        userService.updateUser('64e72f3bb6dc7b001f2a8c99', { name: 'Hacked' }, userPayload)
       ).rejects.toThrow(ForbiddenError);
     });
 
-    it('should allow admin to update any user account', async () => {
-      const adminPayload = {
-        userId: '64e72f3bb6dc7b001f2a8c00',
-        email: 'admin@example.com',
-        role: 'admin' as const,
+    it('should allow user to update their own account', async () => {
+      const userPayload = {
+        userId: '64e72f3bb6dc7b001f2a8c12',
+        email: 'user1@example.com',
       };
 
       const mockUpdated = {
-        _id: '64e72f3bb6dc7b001f2a8c99',
+        _id: '64e72f3bb6dc7b001f2a8c12',
         name: 'Updated Name',
       };
       vi.mocked(mockUserRepo.updateById!).mockResolvedValue(mockUpdated as any);
 
-      const result = await userService.updateUser('64e72f3bb6dc7b001f2a8c99', { name: 'Updated Name' }, adminPayload);
+      const result = await userService.updateUser('64e72f3bb6dc7b001f2a8c12', { name: 'Updated Name' }, userPayload);
       expect(result.name).toBe('Updated Name');
     });
   });
 
   describe('deleteUser', () => {
-    it('should throw ForbiddenError when non-admin tries to delete another user', async () => {
-      const regularUserPayload = {
+    it('should throw ForbiddenError when user tries to delete another user account', async () => {
+      const userPayload = {
         userId: '64e72f3bb6dc7b001f2a8c12',
         email: 'user1@example.com',
-        role: 'user' as const,
       };
 
       await expect(
-        userService.deleteUser('64e72f3bb6dc7b001f2a8c99', regularUserPayload)
+        userService.deleteUser('64e72f3bb6dc7b001f2a8c99', userPayload)
       ).rejects.toThrow(ForbiddenError);
+    });
+
+    it('should perform soft-delete when owner deletes own account', async () => {
+      const userPayload = {
+        userId: '64e72f3bb6dc7b001f2a8c12',
+        email: 'user1@example.com',
+      };
+
+      vi.mocked(mockUserRepo.softDeleteById!).mockResolvedValue({
+        _id: '64e72f3bb6dc7b001f2a8c12',
+        deletedAt: new Date(),
+        status: 'inactive',
+      } as any);
+
+      await expect(
+        userService.deleteUser('64e72f3bb6dc7b001f2a8c12', userPayload)
+      ).resolves.toBeUndefined();
+
+      expect(mockUserRepo.softDeleteById).toHaveBeenCalledWith('64e72f3bb6dc7b001f2a8c12');
     });
   });
 });
