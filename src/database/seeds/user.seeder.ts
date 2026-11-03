@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { UserModel } from '#modules/user/user.model.js';
+import { USER_STATUS, AUTH_PROVIDER, ADDRESS_TYPE } from '#constants/user.constant.js';
 import { logger } from '#config/logger.config.js';
 
 export interface SeedReport {
@@ -24,15 +25,15 @@ export class UserSeeder {
         phoneVerifiedAt: new Date(),
         emailVerifiedAt: new Date(),
         password: 'Admin@Password123',
-        status: 'active' as const,
-        authProvider: 'local' as const,
+        status: USER_STATUS.ACTIVE,
+        authProvider: AUTH_PROVIDER.LOCAL,
         profile: {
           avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb',
           bio: 'Global platform super administrator',
         },
         addresses: [
           {
-            type: 'work' as const,
+            type: ADDRESS_TYPE.WORK,
             isDefault: true,
             fullName: 'Super Administrator',
             phone: '+15550000001',
@@ -52,15 +53,15 @@ export class UserSeeder {
         phoneVerifiedAt: new Date(),
         emailVerifiedAt: new Date(),
         password: 'User@Password123',
-        status: 'active' as const,
-        authProvider: 'local' as const,
+        status: USER_STATUS.ACTIVE,
+        authProvider: AUTH_PROVIDER.LOCAL,
         profile: {
           avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d',
           bio: 'Internal operations & system administrator',
         },
         addresses: [
           {
-            type: 'work' as const,
+            type: ADDRESS_TYPE.WORK,
             isDefault: true,
             fullName: 'Operations Office',
             phone: '+15550000002',
@@ -80,15 +81,15 @@ export class UserSeeder {
         phoneVerifiedAt: new Date(),
         emailVerifiedAt: new Date(),
         password: 'User@Password123',
-        status: 'active' as const,
-        authProvider: 'local' as const,
+        status: USER_STATUS.ACTIVE,
+        authProvider: AUTH_PROVIDER.LOCAL,
         profile: {
           avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330',
           bio: 'Standard application user',
         },
         addresses: [
           {
-            type: 'home' as const,
+            type: ADDRESS_TYPE.HOME,
             isDefault: true,
             fullName: 'Jane Doe',
             phone: '+15550000003',

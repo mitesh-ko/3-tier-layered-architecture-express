@@ -1,8 +1,12 @@
 import mongoose, { Schema, Document, Types } from 'mongoose';
 import {
+  USER_STATUS,
   USER_STATUSES,
+  AUTH_PROVIDER,
   AUTH_PROVIDERS,
+  ADDRESS_TYPE,
   ADDRESS_TYPES,
+  GENDER,
   GENDERS,
 } from '#constants/user.constant.js';
 import type {
@@ -13,9 +17,13 @@ import type {
 } from '#constants/user.constant.js';
 
 export {
+  USER_STATUS,
   USER_STATUSES,
+  AUTH_PROVIDER,
   AUTH_PROVIDERS,
+  ADDRESS_TYPE,
   ADDRESS_TYPES,
+  GENDER,
   GENDERS,
 };
 
@@ -85,7 +93,7 @@ const userAddressSchema = new Schema<IUserAddress>(
     type: {
       type: String,
       enum: ADDRESS_TYPES,
-      default: 'home',
+      default: ADDRESS_TYPE.HOME,
     },
     isDefault: { type: Boolean, default: false },
     fullName: { type: String, trim: true },
@@ -154,13 +162,13 @@ const userSchema = new Schema<IUserDocument>(
     status: {
       type: String,
       enum: USER_STATUSES,
-      default: 'active',
+      default: USER_STATUS.ACTIVE,
       index: true,
     },
     authProvider: {
       type: String,
       enum: AUTH_PROVIDERS,
-      default: 'local',
+      default: AUTH_PROVIDER.LOCAL,
       index: true,
     },
     providerId: {

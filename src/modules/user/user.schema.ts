@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import {
   USER_STATUSES,
+  ADDRESS_TYPE,
   ADDRESS_TYPES,
   GENDERS,
 } from '#constants/user.constant.js';
@@ -19,7 +20,7 @@ export const ListUsersQuerySchema = z.object({
 });
 
 export const AddressSchema = z.object({
-  type: z.enum(ADDRESS_TYPES).default('home'),
+  type: z.enum(ADDRESS_TYPES).default(ADDRESS_TYPE.HOME),
   isDefault: z.boolean().default(false),
   fullName: z.string().trim().optional(),
   phone: z.string().trim().optional(),

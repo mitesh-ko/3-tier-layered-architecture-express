@@ -1,5 +1,6 @@
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
+import { USER_STATUS, AUTH_PROVIDER } from '#constants/user.constant.js';
 import { userRepository, UserRepository } from '#modules/user/user.repository.js';
 import {
   RegisterDto,
@@ -60,15 +61,15 @@ export class AuthService {
     // Generate cryptographic 32-byte email verification token
     const rawVerificationToken = crypto.randomBytes(32).toString('hex');
     const hashedVerificationToken = this.hashToken(rawVerificationToken);
-    const verificationExpires = addHours(DateUtil.nowUTC(), 24); // 24 hours via date-fns
+    const verificationExpires = addHours(DateUtil.nowUTC(), 24); // 24 hours TTL
 
     const firstName = dto.firstName || (dto.name ? dto.name.trim().split(/\s+/)[0] : '');
     const lastName =
       dto.lastName !== undefined
         ? dto.lastName
         : dto.name
-        ? dto.name.trim().split(/\s+/).slice(1).join(' ')
-        : '';
+          ? dto.name.trim().split(/\s+/).slice(1).join(' ')
+          : '';
 
     const user = await this.userRepo.create({
       firstName,
@@ -77,8 +78,8 @@ export class AuthService {
       phone: dto.phone || null,
       phoneVerifiedAt: null,
       password: hashedPassword,
-      status: 'active',
-      authProvider: 'local',
+      status: USER_STATUS.ACTIVE,
+      authProvider: AUTH_PROVIDER.LOCAL,
       emailVerifiedAt: null,
       emailVerificationToken: hashedVerificationToken,
       emailVerificationExpires: verificationExpires,
@@ -194,14 +195,14 @@ export class AuthService {
       );
     }
 
-    if (user.status !== 'active') {
-      if (user.status === 'suspended') {
+    if (user.status !== USER_STATUS.ACTIVE) {
+      if (user.status === USER_STATUS.SUSPENDED) {
         throw new UnauthorizedError('This account has been suspended. Please contact customer support.', 'ACCOUNT_SUSPENDED');
       }
-      if (user.status === 'banned') {
+      if (user.status === USER_STATUS.BANNED) {
         throw new UnauthorizedError('This account has been permanently banned.', 'ACCOUNT_BANNED');
       }
-      if (user.status === 'pending_approval') {
+      if (user.status === USER_STATUS.PENDING_APPROVAL) {
         throw new UnauthorizedError('This account is awaiting administrative approval.', 'ACCOUNT_PENDING');
       }
       throw new UnauthorizedError('This account has been deactivated. Please contact support.', 'ACCOUNT_INACTIVE');
@@ -307,7 +308,7 @@ export class AuthService {
     const payload = TokenService.verifyRefreshToken(refreshTokenString);
     const user = await this.userRepo.findById(payload.userId);
 
-    if (!user || user.status !== 'active' || user.deletedAt) {
+    if (!user || user.status !== USER_STATUS.ACTIVE || user.deletedAt) {
       throw new UnauthorizedError('User account not found or deactivated');
     }
 
